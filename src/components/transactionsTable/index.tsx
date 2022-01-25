@@ -1,12 +1,23 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../../Services/api';
 import {Container} from './styles';
 
+interface Transaction {
+    id: number;
+    title: string;
+    amount: number;
+    type: string;
+    category: string;
+    createdAt: string;
+}
+
 export function TransactionsTable(){
+
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
 
     useEffect(() => {
         api.get('transactions')
-        .then(response => console.log(response.data))
+        .then(response => setTransactions(response.data.transactions))
     }, []);
     return (
         <Container>
@@ -20,18 +31,19 @@ export function TransactionsTable(){
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>Desenvolvimento de sites Web</td>
-                        <td className="deposit">R$3000</td>
-                        <td>Venda</td>
-                        <td>23/11/2021</td>
-                    </tr>
-                    <tr>
-                        <td>Aluguel</td>
-                        <td className="withdraw">-R$1500</td>
-                        <td>Venda</td>
-                        <td>23/11/2021</td>
-                    </tr>
+                    {transactions.map(transaction => (                         
+                        <tr key={transaction.id}>
+                            <td>{transaction.title}</td>
+                            <td className={transaction.type}>{new Intl.NumberFormat('pt-br', {
+                                    style: 'currency',
+                                    currency: 'BRL'
+                                }).format(transaction.amount)}
+                            </td>
+                            <td>{transaction.category}</td>
+                            <td>{new Intl.DateTimeFormat('pt-br').format(new Date(transaction.createdAt))}
+                            </td>
+                        </tr>                        
+                    ))}
                 </tbody>
             </table>
     
